@@ -16,10 +16,21 @@ class flaskr_testcase(unittest.TestCase):
         ''' excuetes after each test even succes or failed '''
         pass
     
-    def test_first_endpoint(self):
-        """ Test first endPoint """
-        res = self.client().get('/books')
+    def test_get_paginated_books(self):
+        res = self.client().get('/books/')
+        data = json.loads(res.data)
+        
         self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertTrue(data['total_books'])
+        self.assertTrue(len(data['books']))
+       
+    def test_404_sent_request_beyond_valid_page(self):
+        res = self.client().get('/books/?page=11', json={'rating':1})
+        data = json.loads(res.data)
+        
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(data['success'], False)
         
 if __name__=='__main__':
     unittest.main()
