@@ -9,11 +9,13 @@ from models import setup_db, Book
 
 BOOKS_PER_SHELF = 8
 
-def Paginate_books(request, lst):
+def Paginate_books(request, all_books):
       page = request.args.get('page', 1, type=int)
       start = (page - 1) * BOOKS_PER_SHELF
       end = start + BOOKS_PER_SHELF
-      return lst[start:end]
+      lst_of_books = [book.format() for book in all_books]
+      books_to_show = lst_of_books[start:end]
+      return books_to_show
 
 # App Factory
 def create_app(test_config=None):
@@ -30,17 +32,16 @@ def create_app(test_config=None):
     return response
 
   # route that retrivies all books, paginated. 
-  @app.route('/books')
+  @app.route('/books/')
   def show_books():
-    books = Book.query.order_by(Book.rating.desc()).all()
-    lst_of_books = [book.format() for book in books]
+    books = Book.query.all()
     books_list = Paginate_books(request, books)
     if len(books_list) == 0:
           return abort(404)
     else:
       return jsonify({
         'success': True,
-        'books': lst_of_books,
+        'books': books_list,
         'total_books': len(books)
       })
 
