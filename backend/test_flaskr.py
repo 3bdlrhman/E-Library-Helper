@@ -32,6 +32,13 @@ class flaskr_testcase(unittest.TestCase):
         self.assertEqual(res.status_code, 404)
         self.assertEqual(data['success'], False)
         
+    def test_update_book_rating(self):
+        res = self.client().patch('/books/26', json={'rating': 1})
+        data = json.loads(res.data)
+        book = Book.query.filter(Book.id==26).one_or_none()
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(book.format()['rating'], 2)
+        
 if __name__=='__main__':
     unittest.main()
         
