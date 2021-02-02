@@ -36,12 +36,12 @@ class flaskr_testcase(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['rating'], 5)
         
-    def test_get_book_search_with(self):
+    def test_get_book_search_with_results(self):
         res = self.client().post('/books', json={'search':'Great'})
         data = json.loads(res.data)
         self.assertEqual(len(data['books']), 1)
 
-    def test_get_book_search_without(self):
+    def test_get_book_search_without_results(self):
         res = self.client().post('/books', json={'search':'hipopo'})
         data = json.loads(res.data)
         self.assertTrue(data['not_exist'])
