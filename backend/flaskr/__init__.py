@@ -48,13 +48,18 @@ def create_app(test_config=None):
   # route that will update a single book's rating. 
   @app.route('/books/<int:book_id>', methods=['PATCH'])
   def change_book_rating(book_id):
+    request_body = request.get_json()
     book = Book.query.get(book_id)
-    book.rating = int(request.get_json().get('rating', None))
+    if book is None:
+      abort(404)
+    if 'rating' in request_body:
+      book.rating = int(request_body['rating'])
     
     try:
       book.update()
       return jsonify({
-        'success': True
+        'success': True,
+        'id': book.id
       })
     except:
       return abort(422)
@@ -63,6 +68,8 @@ def create_app(test_config=None):
   @app.route('/books/<book_id>', methods=['DELETE'])
   def delete_book(book_id):
     book = Book.query.get(book_id)
+    if book is None:
+            abort(404)
   
     try:
       book.delete()
@@ -79,12 +86,13 @@ def create_app(test_config=None):
   # route that create a new book. 
   @app.route('/books', methods=['POST'])
   def create_book():
-    title= request.get_json().get('title', None)
-    author= request.get_json().get('author', None)
-    rating= int(request.get_json().get('rating', None))
+    request_body = request.get_json()
+    title= request_body.get('title', None)
+    author= request_body.get('author', None)
+    rating= request_body.get('rating', None)
     
     try:
-      book = Book(title, author, rating)
+      book = Book(title, author, int(rating))
       book.insert()
       books = Book.query.order_by(Book.id).all()
       lst_of_books = [book.format() for book in books]
